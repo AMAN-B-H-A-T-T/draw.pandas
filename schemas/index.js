@@ -19,11 +19,12 @@ module.exports = buildSchema(`
 
     type Game_Type {
         _id: ID!
-        type: String!
+        game_type: String!
     }
 
     type Game {
         _id: ID!
+        user: User!
         game_type: Game_Type!
         rounds: Int!
         draw_time: Int!
@@ -59,6 +60,12 @@ module.exports = buildSchema(`
         user_password: String!
     }
 
+    input gameInput{
+        user: ID!
+        game_type: ID!
+        tot_rounds: Int!
+        drawing_time: Int!
+    }
 
 
     type RootQuery{
@@ -71,6 +78,8 @@ module.exports = buildSchema(`
     type RootMutation{
         create_user(userinput: userInput): User!
         login(user_email: String!, user_password: String!): Token!
+        game_category(game_type: String!): Game_Type!
+        game(gameinput: gameInput): Game_Room!
     }
     schema {
         query: RootQuery
