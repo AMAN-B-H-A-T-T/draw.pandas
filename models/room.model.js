@@ -7,7 +7,8 @@ const Room = mongoose.model("Room",mongoose.Schema({
     }],
     room_id : {
         type : String,
-        required : true
+        required : true,
+        unique : true
     },
     round : {
         type : Number,
