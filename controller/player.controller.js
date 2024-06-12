@@ -36,10 +36,12 @@ const createPlayerController = async(req,res)=>{
                             "error":error.error
                         })
                     }
-                    await client.set(`user:${playerObj._id}`,JSON.stringify(playerObj),'NX')
-                    await client.set('score:${playerObj._id}',0,'NX')
+                    await client.lpush(`user_list:${result.room_details.room_id}`,JSON.stringify(playerObj))
+                    await client.expire(`user_list:${result.room_details.room_id}`,3600)
+                    await client.set(`score:${playerObj._id}`,0,'NX')
                     const io = getIoObject()
-                    initilizedSocket(io,result._id)
+
+                    initilizedSocket(io,result.room_details._id)
                     return res.status(200).send({
                         "message":"success",
                         "data":result
@@ -55,8 +57,9 @@ const createPlayerController = async(req,res)=>{
                             "error":error.error
                         })
                     }
-                    await client.set(`user:${playerObj._id}`,JSON.stringify(playerObj),'NX')
-                    await client.set(`score:${playerObj._id}`,0,'NX')
+                    await client.lpush(`user_list:${result.room_details.room_id}`,JSON.stringify(playerObj))
+                    await client.expire(`user_list:${result.room_details.room_id}`,3600)
+                    await client.set(`score:${playerObj._id}`,0,'NX','EX', 3600)
                     return res.status(200).send({
                         "message":"success",
                         "data":result
@@ -64,7 +67,7 @@ const createPlayerController = async(req,res)=>{
                 })
             }
             else{
-                deletePlayer(result._id,(error,result)=>{
+                deletePlayer(playerObj._id,(error,result)=>{
                   if(error){
                     return res.status(error.status_code).send({
                         "message":"error",

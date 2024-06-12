@@ -9,7 +9,14 @@ const PORT = 4000
 const app = express()
 
 const Server = http.createServer(app)
-const io = socketIo(Server)
+const io = socketIo(Server,{
+    cors: {
+      origin: 'http://localhost:3000', // React app URL
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Content-Type'],
+      credentials: true
+    }
+  })
 try{
     
     setIoObject(io)

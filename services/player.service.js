@@ -20,11 +20,10 @@ async function roomcreationservices(model,callback){
     try{
         const new_room = new Room(model)
         const room_details = await new_room.save()
-        const filter = {_id:room_details._id}
-        Room.findOne(filter)
-        .populate(["players"])
-        .then(response => (callback(null,response)))
-        .catch(error => (callback({"status_code":500,"error":error.message})))
+        const filter = {_id:model.players[0]}
+        const player_details = await Player.findOne(filter)
+        return callback(null,{room_details,player_details})
+        
     }
     catch(error){
         return callback({"status_code":500,"error":error.message})
@@ -39,10 +38,9 @@ async function addPlayersToRoomService(roomId,playerId,callback){
             await Player.deleteOne({_id:playerId})
             return callback({"status_code":404,"error":"Room details not Found"})
         }
-        Room.findOne(filter)
-        .populate(["players"])
-        .then(response => (callback(null,response)))
-        .catch(error => (callback({"status_code":500,"error":error.message})))
+        const room_details = await Room.findOne(filter)
+        const player_details = await Player.findOne({_id:playerId})
+        return callback(null,{room_details:room_details,player_details:player_details})
         
     }
     catch(error){

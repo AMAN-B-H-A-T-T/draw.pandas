@@ -1,4 +1,7 @@
 
+const { getRoomUserInfo } = require("../services/communication.service")
+const client = require("./redis_client")
+
 let io_obj
 let socket_obj 
 
@@ -7,16 +10,19 @@ function initilizedSocket(io,roomId){
         console.log("connection established")
         socket_obj = socket
         //join private creator in room 
-        socket.on("createRoom",(room_id)=>{
+        socket.on("createRoom",async(room_id)=>{
         
             socket.join(room_id)
-            socket.nsp.to(room_id).emit("room_creation","this is the initial message")
-            console.log("room is create and player is joined")
+            const userInfo = await client.lrange(`user_list:${room_id}`,0,-1)
+            console.log(userInfo)
+            socket.nsp.to(room_id).emit("room_creation",userInfo)
+            
         })
         
-        socket.on("joinRoom",(room_id)=>{
+        socket.on("joinRoom",async(room_id)=>{
             socket.join(room_id)
-            console.log("player has been joined in room")
+            const userInfo = await getRoomUserInfo(room_id)
+            socket.nsp.to(room_id).emit("room_creation",userInfo)
         })
         
         socket.on("getRoomCount",(room_id)=>{
@@ -24,6 +30,12 @@ function initilizedSocket(io,roomId){
         })
         socket.on('disconnect',()=>{
             console.log("disconnected")
+        })
+
+        socket.on('round_change',(message)=>{
+            const rounds = JSON.parse(message)
+            console.log(rounds)
+            socket.nsp.to(rounds.room_id).emit('round_count',rounds.rounds)
         })
     })   
 }
