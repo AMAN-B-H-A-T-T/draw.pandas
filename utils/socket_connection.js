@@ -1,5 +1,6 @@
 
 const { getRoomUserInfo } = require("../services/communication.service")
+const { getDrawable_object } = require("../services/drawableObject.services")
 const client = require("./redis_client")
 
 let io_obj
@@ -36,6 +37,17 @@ function initilizedSocket(io,roomId){
             const rounds = JSON.parse(message)
             console.log(rounds)
             socket.nsp.to(rounds.room_id).emit('round_count',rounds.rounds)
+        })
+
+        socket.on('start_game',(data)=>{
+            const {room_id,round_count} = data
+            socket.nsp.to(room_id).emit('start_game_response',round_count)
+        })
+
+        socket.on('get_drawable_objects',async(room_id)=>{
+            const word_list = JSON.stringify(await getDrawable_object())
+            console.log(word_list)
+            socket.nsp.to(room_id).emit('drawable_object_response',word_list)
         })
     })   
 }

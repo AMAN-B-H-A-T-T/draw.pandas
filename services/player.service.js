@@ -24,6 +24,7 @@ async function roomcreationservices(model,callback){
         const player_details = await Player.findOne(filter)
         return callback(null,{room_details,player_details})
         
+        
     }
     catch(error){
         return callback({"status_code":500,"error":error.message})

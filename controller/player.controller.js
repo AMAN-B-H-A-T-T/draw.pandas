@@ -17,6 +17,7 @@ const createPlayerController = async(req,res)=>{
                 return res.status(error.status_code).send({
                     "message":"error",
                     "error":error.error
+                    
                 })
             }
             //add the room creator in room
