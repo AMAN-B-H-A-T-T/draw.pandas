@@ -15,7 +15,7 @@ function initilizedSocket(io,roomId){
         
             socket.join(room_id)
             const userInfo = await client.lrange(`user_list:${room_id}`,0,-1)
-            console.log(userInfo)
+        
             socket.nsp.to(room_id).emit("room_creation",userInfo)
             
         })
@@ -35,7 +35,6 @@ function initilizedSocket(io,roomId){
 
         socket.on('round_change',(message)=>{
             const rounds = JSON.parse(message)
-            console.log(rounds)
             socket.nsp.to(rounds.room_id).emit('round_count',rounds.rounds)
         })
 
@@ -46,7 +45,6 @@ function initilizedSocket(io,roomId){
 
         socket.on('get_drawable_objects',async(room_id)=>{
             const word_list = JSON.stringify(await getDrawable_object())
-            console.log(word_list)
             socket.nsp.to(room_id).emit('drawable_object_response',word_list)
         })
     })   

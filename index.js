@@ -7,7 +7,7 @@ const { connect_db } = require('./utils/connectDb')
 const { setIoObject } = require('./utils/socket_connection')
 const PORT = 4000
 const app = express()
-
+const path = require('path')
 const Server = http.createServer(app)
 const io = socketIo(Server,{
     cors: {
@@ -24,6 +24,10 @@ try{
     connect_db()
     app.use(bodyParser.json())
     app.use("/api/manage",require('./routes/player.routes'))
+    app.use(express.static(path.join(__dirname, "/dist")));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(__dirname, "dist", "index.html"));
+    });
 }
 catch(error){
     console.log(error.messge)
