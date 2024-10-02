@@ -1,5 +1,5 @@
 
-const { getRoomUserInfo } = require("../services/communication.service")
+const { getRoomUserInfo, HandlePlayerTurn } = require("../services/communication.service")
 const { getDrawable_object } = require("../services/drawableObject.services")
 const client = require("./redis_client")
 
@@ -15,7 +15,7 @@ function initilizedSocket(io,roomId){
         
             socket.join(room_id)
             const userInfo = await client.lrange(`user_list:${room_id}`,0,-1)
-        
+            
             socket.nsp.to(room_id).emit("room_creation",userInfo)
             
         })
@@ -38,14 +38,47 @@ function initilizedSocket(io,roomId){
             socket.nsp.to(rounds.room_id).emit('round_count',rounds.rounds)
         })
 
-        socket.on('start_game',(data)=>{
-            const {room_id,round_count} = data
-            socket.nsp.to(room_id).emit('start_game_response',round_count)
+        socket.on('start_game',async(data)=>{
+            const {room_id,round_count,player_ptr} = JSON.parse(data)
+            const player = await HandlePlayerTurn(room_id,-1)
+            console.log(player)
+            const player_data = {
+                round_count : round_count,
+                turn_details : player.details,
+                player_ptr : player.player_ptr
+            }
+            socket.nsp.to(room_id).emit('start_game_response',JSON.stringify(player_data))
         })
 
         socket.on('get_drawable_objects',async(room_id)=>{
             const word_list = JSON.stringify(await getDrawable_object())
             socket.nsp.to(room_id).emit('drawable_object_response',word_list)
+        })
+
+        socket.on('word_selection',(data)=>{
+            const {word_details , room_id} = JSON.parse(data)
+            socket.nsp.to(room_id).emit('word_selection_response',JSON.stringify(word_details))
+        })
+
+        socket.on('canvas_data',(data)=>{
+            const {canvas,room_id} = data
+            socket.nsp.to(room_id).emit('canvas_data_response',canvas)
+        })
+
+        socket.on('room_chat',(message)=>{
+            const data = JSON.parse(message)
+            console.log(data)
+            socket.nsp.to(data.room_id).emit('room_chat',message)
+        })
+
+        socket.on('turns',(message)=>{
+            const data = JSON.parse(message)
+            const player = HandlePlayerTurn(data.room_id,data.player_ptr)
+            const respons = {
+                turn_details : player.details,
+                player_ptr : player.player_ptr
+            }
+            socket.nsp.to(data.room_id).emit('turns',data.JSON.stringify(respons))
         })
     })   
 }

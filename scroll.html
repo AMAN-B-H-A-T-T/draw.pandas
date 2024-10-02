@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Full Page Scroll</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+         
+        }
+        section {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            overflow: hidden;
+        }
+        #page1 { background-color: #ffcc00; }
+        #page2 { background-color: #0099ff; }
+        #page3 { background-color: #ff6699; }
+    </style>
+</head>
+<body>
+    <section id="page1">Page 1</section>
+    <section id="page2">Page 2</section>
+    <section id="page3">Page 3</section>
+
+    <script>
+        let currentPage = 0;
+
+        // Function to scroll to a specific page
+        function scrollToPage(pageIndex) {
+            const vh = window.innerHeight;
+            window.scrollTo({ top: pageIndex * vh, behavior: 'smooth' });
+        }
+
+        // Function to handle the scroll event
+        function handleScroll(event) {
+            const vh = window.innerHeight;
+            const scrollY = window.scrollY;
+            const newPage = Math.round(scrollY / vh);
+
+            if (newPage !== currentPage) {
+                currentPage = newPage;
+                scrollToPage(currentPage);
+            }
+        }
+
+        // Throttle scroll event to improve performance
+        let isScrolling = false;
+        window.addEventListener('scroll', function(event) {
+            console.log("first")
+            if (!isScrolling) {
+                window.requestAnimationFrame(function() {
+                    handleScroll(event);
+                    isScrolling = false;
+                });
+                isScrolling = true;
+            }
+        });
+    </script>
+</body>
+</html>

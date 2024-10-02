@@ -10,7 +10,7 @@ const app = express()
 const path = require('path')
 const Server = http.createServer(app)
 
-const allowedOrigins = ['http://localhost:4000', 'https://draw-pandas.onrender.com'];
+const allowedOrigins = ['http://localhost:4000', 'https://draw-pandas.onrender.com',"http://localhost:3000"];
 
 const io = socketIo(Server,{
   cors: {
